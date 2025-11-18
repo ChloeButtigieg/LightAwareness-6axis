@@ -4,12 +4,12 @@
 		"Module.LightAwareness.cpp.obj": [
 			"LightAwarenessSubsystem.gen.cpp.obj",
 			"PerModuleInline.gen.cpp.obj",
-			"LightAwareness.cpp.obj",
-			"LightAwarenessGpu.cpp.obj",
-			"LightAwarenessSubsystem.cpp.obj",
 			"LightAwareness.init.gen.cpp.obj",
 			"LightAwarenessComponent.gen.cpp.obj",
-			"LightAwarenessComponent.cpp.obj"
+			"LightAwareness.cpp.obj",
+			"LightAwarenessComponent.cpp.obj",
+			"LightAwarenessGpu.cpp.obj",
+			"LightAwarenessSubsystem.cpp.obj"
 		]
 	}
 }

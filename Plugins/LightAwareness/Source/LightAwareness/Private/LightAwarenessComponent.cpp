@@ -42,6 +42,21 @@ ULightAwarenessComponent::ULightAwarenessComponent(const FObjectInitializer& Obj
 	// Refer to Render Targets
 	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTargetAssetReferralBottom(TEXT("/Script/Engine.TextureRenderTarget2D'/LightAwareness/LightAwarenessBottom_RT.LightAwarenessBottom_RT'"));
 	LightAwarenessRenderTargetBottom = RenderTargetAssetReferralBottom.Object;
+
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTargetAssetReferralLeft(TEXT("/Script/Engine.TextureRenderTarget2D'/LightAwareness/LightAwarenessLeft_RT.LightAwarenessLeft_RT'"));
+	LightAwarenessRenderTargetLeft = RenderTargetAssetReferralLeft.Object;
+
+	// Référence au Render Target Right
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTargetAssetReferralRight(TEXT("/Script/Engine.TextureRenderTarget2D'/LightAwareness/LightAwarenessRight_RT.LightAwarenessRight_RT'"));
+	LightAwarenessRenderTargetRight = RenderTargetAssetReferralRight.Object;
+
+	// Référence au Render Target Front
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTargetAssetReferralFront(TEXT("/Script/Engine.TextureRenderTarget2D'/LightAwareness/LightAwarenessFront_RT.LightAwarenessFront_RT'"));
+	LightAwarenessRenderTargetFront = RenderTargetAssetReferralFront.Object;
+
+	// Référence au Render Target Back
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTargetAssetReferralBack(TEXT("/Script/Engine.TextureRenderTarget2D'/LightAwareness/LightAwarenessBack_RT.LightAwarenessBack_RT'"));
+	LightAwarenessRenderTargetBack = RenderTargetAssetReferralBack.Object;
 }
 
 void ULightAwarenessComponent::OnComponentCreated()
@@ -155,9 +170,29 @@ void ULightAwarenessComponent::BeginPlay()
 		UTextureRenderTarget2D* LARenderTargetBottom = UKismetRenderingLibrary::CreateRenderTarget2D(this, 16, 16, RTF_RGBA8);
 		sceneCaptureComponentBottom->TextureTarget = LARenderTargetBottom;
 
+		// Create A New Render Target Front
+		UTextureRenderTarget2D* LARenderTargetFront = UKismetRenderingLibrary::CreateRenderTarget2D(this, 16, 16, RTF_RGBA8);
+		sceneCaptureComponentFront->TextureTarget = LARenderTargetFront;
+
+		// Create A New Render Target Back
+		UTextureRenderTarget2D* LARenderTargetBack = UKismetRenderingLibrary::CreateRenderTarget2D(this, 16, 16, RTF_RGBA8);
+		sceneCaptureComponentBack->TextureTarget = LARenderTargetBack;
+
+		// Create A New Render Target Left
+		UTextureRenderTarget2D* LARenderTargetLeft = UKismetRenderingLibrary::CreateRenderTarget2D(this, 16, 16, RTF_RGBA8);
+		sceneCaptureComponentLeft->TextureTarget = LARenderTargetLeft;
+
+		// Create A New Render Target Right
+		UTextureRenderTarget2D* LARenderTargetRight = UKismetRenderingLibrary::CreateRenderTarget2D(this, 16, 16, RTF_RGBA8);
+		sceneCaptureComponentRight->TextureTarget = LARenderTargetRight;
+
 		// Update Pointers to Static RT
 		LightAwarenessRenderTargetTop    = LARenderTargetTop;
 		LightAwarenessRenderTargetBottom = LARenderTargetBottom;
+		LightAwarenessRenderTargetFront = LARenderTargetFront;
+		LightAwarenessRenderTargetBack = LARenderTargetBack;
+		LightAwarenessRenderTargetLeft = LARenderTargetLeft;
+		LightAwarenessRenderTargetRight = LARenderTargetRight;
 	}
 	
 	// Be sure that the component visibility is set in runtime
@@ -169,6 +204,10 @@ void ULightAwarenessComponent::BeginPlay()
 	float LightAwarenessMeshBounds = LightAwarenessMesh->GetStaticMesh()->GetBounds().BoxExtent.Length()/2;
 	sceneCaptureComponentTop->OrthoWidth = LightAwarenessMeshBounds;
 	sceneCaptureComponentBottom->OrthoWidth = LightAwarenessMeshBounds;
+	sceneCaptureComponentFront->OrthoWidth = LightAwarenessMeshBounds;
+	sceneCaptureComponentBack->OrthoWidth = LightAwarenessMeshBounds;
+	sceneCaptureComponentLeft->OrthoWidth = LightAwarenessMeshBounds;
+	sceneCaptureComponentRight->OrthoWidth = LightAwarenessMeshBounds;
 
 	// Ensure Settings
 	FTimerHandle SettingsTimer;
@@ -200,6 +239,10 @@ void ULightAwarenessComponent::SetupOwnerOtherComponents() const
 
 			sceneCaptureComponentTop->HiddenComponents.Add(Comp);
 			sceneCaptureComponentBottom->HiddenComponents.Add(Comp);
+			sceneCaptureComponentFront->HiddenComponents.Add(Comp);
+			sceneCaptureComponentBack->HiddenComponents.Add(Comp);
+			sceneCaptureComponentLeft->HiddenComponents.Add(Comp);
+			sceneCaptureComponentRight->HiddenComponents.Add(Comp);
 
 			UE_LOG(LogTemp, Display, TEXT("LightAwareness : Hiding %s from Scene Capture"), *Comp->GetName());
 		}
@@ -230,6 +273,7 @@ void ULightAwarenessComponent::SpawnRenderMesh()
 	LightAwarenessMesh->SetMobility(EComponentMobility::Movable);
 	LightAwarenessMesh->SetRelativeScale3D(FVector (1,1,1) * LightAwarenessDetectorScale);
 	LightAwarenessMesh->SetRelativeLocation(FVector (1,1,1) * LightAwarenessDetectorOffset);
+	LightAwarenessMesh->SetRelativeRotation(FRotator(0, 45, 0));
 	LightAwarenessMesh->SetStaticMesh(OctahedronMesh);
 	LightAwarenessMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	LightAwarenessMesh->CastShadow = true;
@@ -259,9 +303,29 @@ void ULightAwarenessComponent::SetupSceneCapture()
 	sceneCaptureComponentBottom = NewObject <USceneCaptureComponent2D>(this,USceneCaptureComponent2D::StaticClass(), TEXT("LightAwarenessSceneCaptureBottom(Created)"));
 	sceneCaptureComponentBottom->AttachToComponent(LightAwarenessMesh, FAttachmentTransformRules::KeepRelativeTransform);
 
+	// Setup Scene Capture Front
+	sceneCaptureComponentFront = NewObject <USceneCaptureComponent2D>(this,USceneCaptureComponent2D::StaticClass(), TEXT("LightAwarenessSceneCaptureFront(Created)"));
+	sceneCaptureComponentFront->AttachToComponent(LightAwarenessMesh, FAttachmentTransformRules::KeepRelativeTransform);
+
+	// Setup Scene Capture Back
+	sceneCaptureComponentBack = NewObject <USceneCaptureComponent2D>(this,USceneCaptureComponent2D::StaticClass(), TEXT("LightAwarenessSceneCaptureBack(Created)"));
+	sceneCaptureComponentBack->AttachToComponent(LightAwarenessMesh, FAttachmentTransformRules::KeepRelativeTransform);
+
+	// Setup Scene Capture Left
+	sceneCaptureComponentLeft = NewObject <USceneCaptureComponent2D>(this,USceneCaptureComponent2D::StaticClass(), TEXT("LightAwarenessSceneCaptureLeft(Created)"));
+	sceneCaptureComponentLeft->AttachToComponent(LightAwarenessMesh, FAttachmentTransformRules::KeepRelativeTransform);
+
+	// Setup Scene Capture Right
+	sceneCaptureComponentRight = NewObject <USceneCaptureComponent2D>(this,USceneCaptureComponent2D::StaticClass(), TEXT("LightAwarenessSceneCaptureRight(Created)"));
+	sceneCaptureComponentRight->AttachToComponent(LightAwarenessMesh, FAttachmentTransformRules::KeepRelativeTransform);
+
 	// Use constructor defined target. This is generally OK for networking too if run in separate processes
 	SetupSceneCaptureSettings(sceneCaptureComponentTop, LightAwarenessRenderTargetTop, FVector (0,0,150), FRotator (-90,0,0));
 	SetupSceneCaptureSettings(sceneCaptureComponentBottom, LightAwarenessRenderTargetBottom, FVector (0,0,-150) ,FRotator (90,0,0));
+	SetupSceneCaptureSettings(sceneCaptureComponentFront, LightAwarenessRenderTargetFront, FVector(110, -110, 0), FRotator(0, 135, 45));
+	SetupSceneCaptureSettings(sceneCaptureComponentBack, LightAwarenessRenderTargetBack, FVector(-110, 110, 0), FRotator(0, -45, 45));
+	SetupSceneCaptureSettings(sceneCaptureComponentRight, LightAwarenessRenderTargetRight, FVector(110, 110, 0), FRotator(0, -135, 45));
+	SetupSceneCaptureSettings(sceneCaptureComponentLeft, LightAwarenessRenderTargetLeft, FVector(-110, -110, 0), FRotator(0, 45, 45));
 }
 
 void ULightAwarenessComponent::SetupSceneCaptureSettings(USceneCaptureComponent2D* sceneCaptureComponents, UTextureRenderTarget2D* RenderTarget, const FVector& Location, const FRotator& Rotation) const
@@ -366,9 +430,29 @@ TArray<FColor> ULightAwarenessComponent::GetBufferPixels()
     	case ELightAwarenessDetectionMethod::Bottom:
     		BufferImage = RenderBufferPixelsBottom();
     			break;
-		case ELightAwarenessDetectionMethod::Both:
+		case ELightAwarenessDetectionMethod::TopBottom:
 			BufferImage = RenderBufferPixelsTop();
 			BufferImage.Append(RenderBufferPixelsBottom());
+			break;
+		case ELightAwarenessDetectionMethod::Left:
+			BufferImage = RenderBufferPixelsLeft();
+			break;
+		case ELightAwarenessDetectionMethod::Right:
+			BufferImage = RenderBufferPixelsRight();
+			break;
+		case ELightAwarenessDetectionMethod::Front:
+			BufferImage = RenderBufferPixelsFront();
+			break;
+		case ELightAwarenessDetectionMethod::Back:
+			BufferImage = RenderBufferPixelsBack();
+			break;
+		case ELightAwarenessDetectionMethod::All:
+			BufferImage = RenderBufferPixelsTop();
+			BufferImage.Append(RenderBufferPixelsBottom());
+			BufferImage.Append(RenderBufferPixelsLeft());
+			BufferImage.Append(RenderBufferPixelsRight());
+			BufferImage.Append(RenderBufferPixelsFront());
+			BufferImage.Append(RenderBufferPixelsBack());
 			break;
     	default: break; 
     	}
@@ -414,6 +498,86 @@ TArray<FColor> ULightAwarenessComponent::RenderBufferPixelsBottom()
 	return PixelArray ;
 }
 
+TArray<FColor> ULightAwarenessComponent::RenderBufferPixelsLeft()
+{
+	TArray<FColor> PixelArray;
+	sceneCaptureComponentLeft->CaptureSceneDeferred();
+
+	// Get Buffer Image Pıxel to an Array
+	FTextureRenderTargetResource *RenderTargetLeft = sceneCaptureComponentLeft->TextureTarget->GameThread_GetRenderTargetResource();
+
+	// Define Color Array
+	TArray<FColor> CurrentBufferLeft;
+
+	// Define Search Box
+	const auto SearchRectangle = FIntRect( XMin, YMin, XMax, YMax);
+	RenderTargetLeft->ReadPixels(CurrentBufferLeft,RCM_MinMax, SearchRectangle);
+
+	PixelArray.Append(CurrentBufferLeft);
+		
+	return PixelArray ;
+}
+
+TArray<FColor> ULightAwarenessComponent::RenderBufferPixelsRight()
+{
+	TArray<FColor> PixelArray;
+	sceneCaptureComponentRight->CaptureSceneDeferred();
+
+	// Get Buffer Image Pıxel to an Array
+	FTextureRenderTargetResource *RenderTargetRight = sceneCaptureComponentRight->TextureTarget->GameThread_GetRenderTargetResource();
+
+	// Define Color Array
+	TArray<FColor> CurrentBufferRight;
+
+	// Define Search Box
+	const auto SearchRectangle = FIntRect( XMin, YMin, XMax, YMax);
+	RenderTargetRight->ReadPixels(CurrentBufferRight,RCM_MinMax, SearchRectangle);
+
+	PixelArray.Append(CurrentBufferRight);
+		
+	return PixelArray ;
+}
+
+TArray<FColor> ULightAwarenessComponent::RenderBufferPixelsBack()
+{
+	TArray<FColor> PixelArray;
+	sceneCaptureComponentBack->CaptureSceneDeferred();
+
+	// Get Buffer Image Pıxel to an Array
+	FTextureRenderTargetResource *RenderTargetBack = sceneCaptureComponentBack->TextureTarget->GameThread_GetRenderTargetResource();
+
+	// Define Color Array
+	TArray<FColor> CurrentBufferBack;
+
+	// Define Search Box
+	const auto SearchRectangle = FIntRect( XMin, YMin, XMax, YMax);
+	RenderTargetBack->ReadPixels(CurrentBufferBack,RCM_MinMax, SearchRectangle);
+
+	PixelArray.Append(CurrentBufferBack);
+		
+	return PixelArray ;
+}
+
+TArray<FColor> ULightAwarenessComponent::RenderBufferPixelsFront()
+{
+	TArray<FColor> PixelArray;
+	sceneCaptureComponentFront->CaptureSceneDeferred();
+
+	// Get Buffer Image Pıxel to an Array
+	FTextureRenderTargetResource *RenderTargetFront = sceneCaptureComponentFront->TextureTarget->GameThread_GetRenderTargetResource();
+
+	// Define Color Array
+	TArray<FColor> CurrentBufferFront;
+
+	// Define Search Box
+	const auto SearchRectangle = FIntRect( XMin, YMin, XMax, YMax);
+	RenderTargetFront->ReadPixels(CurrentBufferFront,RCM_MinMax, SearchRectangle);
+
+	PixelArray.Append(CurrentBufferFront);
+		
+	return PixelArray ;
+}
+
 void ULightAwarenessComponent::ProcessLight()
 {
 
@@ -455,15 +619,53 @@ void ULightAwarenessComponent::ProcessGPU()
 				: 0;
 			EnqueueConsumeAvgIfReady(BottomReadback, BottomMailbox, PixelCount);
 		}
+		if (LeftReadback.IsValid())
+		{
+			int32 PixelCount = sceneCaptureComponentLeft && sceneCaptureComponentLeft->TextureTarget
+				? sceneCaptureComponentLeft->TextureTarget->SizeX * sceneCaptureComponentLeft->TextureTarget->SizeY
+				: 0;
+			EnqueueConsumeAvgIfReady(LeftReadback, LeftMailbox, PixelCount);
+		}
+		if (RightReadback.IsValid())
+		{
+			int32 PixelCount = sceneCaptureComponentRight && sceneCaptureComponentRight->TextureTarget
+				? sceneCaptureComponentRight->TextureTarget->SizeX * sceneCaptureComponentRight->TextureTarget->SizeY
+				: 0;
+			EnqueueConsumeAvgIfReady(RightReadback, RightMailbox, PixelCount);
+		}
+		if (FrontReadback.IsValid())
+		{
+			int32 PixelCount = sceneCaptureComponentFront && sceneCaptureComponentFront->TextureTarget
+				? sceneCaptureComponentFront->TextureTarget->SizeX * sceneCaptureComponentFront->TextureTarget->SizeY
+				: 0;
+			EnqueueConsumeAvgIfReady(FrontReadback, FrontMailbox, PixelCount);
+		}
+		if (BackReadback.IsValid())
+		{
+			int32 PixelCount = sceneCaptureComponentBack && sceneCaptureComponentBack->TextureTarget
+				? sceneCaptureComponentBack->TextureTarget->SizeX * sceneCaptureComponentBack->TextureTarget->SizeY
+				: 0;
+			EnqueueConsumeAvgIfReady(BackReadback, BackMailbox, PixelCount);
+		}
 	}
 	else // Brightest
 	{
 		// schedule on render thread
 		if (TopReadback.IsValid())
 			EnqueueConsumeMaxIfReady(TopReadback, TopMailbox);
-
 		if (BottomReadback.IsValid())
 			EnqueueConsumeMaxIfReady(BottomReadback, BottomMailbox);
+		if (LeftReadback.IsValid())
+			EnqueueConsumeMaxIfReady(LeftReadback, LeftMailbox);
+		
+		if (RightReadback.IsValid())
+			EnqueueConsumeMaxIfReady(RightReadback, RightMailbox);
+
+		if (FrontReadback.IsValid())
+			EnqueueConsumeMaxIfReady(FrontReadback, FrontMailbox);
+
+		if (BackReadback.IsValid())
+			EnqueueConsumeMaxIfReady(BackReadback, BackMailbox);
 	}
 
 	// Consume 
@@ -568,7 +770,7 @@ void ULightAwarenessComponent::KickGpuReductions()
 		}
 		break;
 
-	case ELightAwarenessDetectionMethod::Both:
+	case ELightAwarenessDetectionMethod::TopBottom:
 		if (sceneCaptureComponentTop && sceneCaptureComponentTop->TextureTarget)
 		{
 			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
@@ -594,14 +796,118 @@ void ULightAwarenessComponent::KickGpuReductions()
 			sceneCaptureComponentBottom->CaptureSceneDeferred();
 		}
 		break;
+		
+	case ELightAwarenessDetectionMethod::Left:
+		if (sceneCaptureComponentLeft && sceneCaptureComponentLeft->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentLeft->TextureTarget, LeftReadback);
+			else
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentLeft->TextureTarget, LeftReadback);
+			sceneCaptureComponentLeft->CaptureSceneDeferred();
+		}
+		break;
+
+	case ELightAwarenessDetectionMethod::Right:
+		if (sceneCaptureComponentRight && sceneCaptureComponentRight->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentRight->TextureTarget, RightReadback);
+			else
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentRight->TextureTarget, RightReadback);
+			sceneCaptureComponentRight->CaptureSceneDeferred();
+		}
+		break;
+
+	case ELightAwarenessDetectionMethod::Front:
+		if (sceneCaptureComponentFront && sceneCaptureComponentFront->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentFront->TextureTarget, FrontReadback);
+			else
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentFront->TextureTarget, FrontReadback);
+			sceneCaptureComponentFront->CaptureSceneDeferred();
+		}
+		break;
+
+	case ELightAwarenessDetectionMethod::Back:
+		if (sceneCaptureComponentBack && sceneCaptureComponentBack->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentBack->TextureTarget, BackReadback);
+			else
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentBack->TextureTarget, BackReadback);
+			sceneCaptureComponentBack->CaptureSceneDeferred();
+		}
+		break;
+
+	case ELightAwarenessDetectionMethod::All:
+		if (sceneCaptureComponentTop && sceneCaptureComponentTop->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+			{
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentTop->TextureTarget, TopReadback);
+			}
+			else
+			{
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentTop->TextureTarget, TopReadback);
+			}
+			sceneCaptureComponentTop->CaptureSceneDeferred();
+		}
+		if (sceneCaptureComponentBottom && sceneCaptureComponentBottom->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+			{
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentBottom->TextureTarget, BottomReadback);
+			}
+			else
+			{
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentBottom->TextureTarget, BottomReadback);
+			}
+			sceneCaptureComponentBottom->CaptureSceneDeferred();
+		}
+		if (sceneCaptureComponentLeft && sceneCaptureComponentLeft->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentLeft->TextureTarget, LeftReadback);
+			else
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentLeft->TextureTarget, LeftReadback);
+			sceneCaptureComponentLeft->CaptureSceneDeferred();
+		}
+		if (sceneCaptureComponentRight && sceneCaptureComponentRight->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentRight->TextureTarget, RightReadback);
+			else
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentRight->TextureTarget, RightReadback);
+			sceneCaptureComponentRight->CaptureSceneDeferred();
+		}
+		if (sceneCaptureComponentFront && sceneCaptureComponentFront->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentFront->TextureTarget, FrontReadback);
+			else
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentFront->TextureTarget, FrontReadback);
+			sceneCaptureComponentFront->CaptureSceneDeferred();
+		}
+		if (sceneCaptureComponentBack && sceneCaptureComponentBack->TextureTarget)
+		{
+			if (LightAwarenessCalculationMethod == ELightAwarenessCalculationMethod::Average)
+				EnqueueAvgLuminanceReduce(sceneCaptureComponentBack->TextureTarget, BackReadback);
+			else
+				EnqueueMaxLuminanceReduce(sceneCaptureComponentBack->TextureTarget, BackReadback);
+			sceneCaptureComponentBack->CaptureSceneDeferred();
+		}
+		break;
 	}
+	
 }
 
 // Poll readbacks
 bool ULightAwarenessComponent::ConsumeGpuReductions(float& OutLightValue)
 {
-	bool bGotTop = false, bGotBottom = false;
-	float LTop = 0.f, LBottom = 0.f;
+	bool bGotTop = false, bGotBottom = false, bGotLeft = false, bGotRight = false, bGotFront = false, bGotBack = false;
+	float LTop = 0.f, LBottom = 0.f, LLeft = 0.f, LRight = 0.f, LFront = 0.f, LBack = 0.f;
 
 	// mailbox check (non-blocking)
 	const int32 TopEpoch = TopMailbox.Epoch.Load();
@@ -622,7 +928,43 @@ bool ULightAwarenessComponent::ConsumeGpuReductions(float& OutLightValue)
 		bGotBottom = true;
 	}
 
-	if (!bGotTop && !bGotBottom)
+	const int32 LeftEpoch = LeftMailbox.Epoch.Load();
+	if (LeftEpoch != LeftEpochSeen)
+	{
+		LeftEpochSeen = LeftEpoch;
+		const uint32 Bits = LeftMailbox.Bits.Load();
+		LLeft = *reinterpret_cast<const float*>(&Bits);
+		bGotLeft = true;
+	}
+
+	const int32 RightEpoch = RightMailbox.Epoch.Load();
+	if (RightEpoch != RightEpochSeen)
+	{
+		RightEpochSeen = RightEpoch;
+		const uint32 Bits = RightMailbox.Bits.Load();
+		LRight = *reinterpret_cast<const float*>(&Bits);
+		bGotRight = true;
+	}
+
+	const int32 FrontEpoch =  FrontMailbox.Epoch.Load();
+	if ( FrontEpoch !=  FrontEpochSeen)
+	{
+		FrontEpochSeen = FrontEpoch;
+		const uint32 Bits = FrontMailbox.Bits.Load();
+		LFront = *reinterpret_cast<const float*>(&Bits);
+		bGotFront = true;
+	}
+
+	const int32 BackEpoch = BackMailbox.Epoch.Load();
+	if (BackEpoch != BackEpochSeen)
+	{
+		BackEpochSeen = BackEpoch;
+		const uint32 Bits = BackMailbox.Bits.Load();
+		LBack = *reinterpret_cast<const float*>(&Bits);
+		bGotBack = true;
+	}
+
+	if (!bGotTop && !bGotBottom && !bGotLeft && !bGotRight && !bGotFront && !bGotBack)
 		return false;
 
 	// ---- Calculation driven by method ----
@@ -631,6 +973,10 @@ bool ULightAwarenessComponent::ConsumeGpuReductions(float& OutLightValue)
 		float Brightest = 0.f;
 		if (bGotTop)    Brightest = FMath::Max(Brightest, LTop);
 		if (bGotBottom) Brightest = FMath::Max(Brightest, LBottom);
+		if (bGotLeft)   Brightest = FMath::Max(Brightest, LLeft);
+		if (bGotRight)  Brightest = FMath::Max(Brightest, LRight);
+		if (bGotFront)  Brightest = FMath::Max(Brightest, LFront);
+		if (bGotBack)   Brightest = FMath::Max(Brightest, LBack);
 		OutLightValue = Brightest;
 	}
 	else // Average
@@ -639,6 +985,10 @@ bool ULightAwarenessComponent::ConsumeGpuReductions(float& OutLightValue)
 		int   Count = 0;
 		if (bGotTop)    { Sum += LTop;    ++Count; }
 		if (bGotBottom) { Sum += LBottom; ++Count; }
+		if (bGotLeft)   { Sum += LLeft;   ++Count; }
+		if (bGotRight)  { Sum += LRight;  ++Count; }
+		if (bGotFront)  { Sum += LFront;  ++Count; }
+		if (bGotBack)   { Sum += LBack;   ++Count; }
 		OutLightValue = (Count > 0) ? (Sum / Count) : 0.f;
 	}
 
@@ -719,9 +1069,6 @@ void ULightAwarenessComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
                                              FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	//Always Set rotation world to overcome value peaks regarding the method
-	LightAwarenessMesh->SetWorldRotation(FRotator(0.0f, 0.0f, 0.0f));
 
 	// Method Update On Distance Delta Threshold Reached
 	if (LightAwarenessGetMethod == ELightAwarenessGetMethod::Distance)

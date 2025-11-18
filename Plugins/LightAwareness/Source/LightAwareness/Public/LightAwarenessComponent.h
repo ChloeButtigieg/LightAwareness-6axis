@@ -27,8 +27,13 @@ UENUM(BlueprintType)
 enum class ELightAwarenessDetectionMethod : uint8
 {
 	Top UMETA(DisplayName = "Top Directional"),
-	Both UMETA(DisplayName = "Top & Bottom Directional"),
+	TopBottom UMETA(DisplayName = "Top & Bottom Directional"),
 	Bottom UMETA(DisplayName = "Bottom Directional"),
+	Left UMETA(DisplayName = "Left Directional"),
+	Right UMETA(DisplayName = "Right Directional"),
+	Front UMETA(DisplayName = "Front Directional"),
+	Back UMETA(DisplayName = "Back Directional"),
+	All UMETA(DisplayName = "All Directions (6)"),
 };
 
 UENUM(BlueprintType)
@@ -177,6 +182,15 @@ protected:
 	
 	// Array Bottom Rendering Pixels
 	TArray<FColor> RenderBufferPixelsBottom();
+
+	TArray<FColor> RenderBufferPixelsLeft();
+
+	TArray<FColor> RenderBufferPixelsRight();
+
+	TArray<FColor> RenderBufferPixelsBack();
+
+	TArray<FColor> RenderBufferPixelsFront();
+	
 	void KickGpuReductions();
 
 	UPROPERTY()
@@ -190,12 +204,24 @@ protected:
 	// GPU mailboxes and last-seen epochs (game thread)
 	FLumaMailbox TopMailbox;
 	FLumaMailbox BottomMailbox;
+	FLumaMailbox LeftMailbox;
+	FLumaMailbox RightMailbox;
+	FLumaMailbox FrontMailbox;
+	FLumaMailbox BackMailbox;
 	int32 TopEpochSeen    = 0;
 	int32 BottomEpochSeen = 0;
+	int32 LeftEpochSeen    = 0;
+	int32 RightEpochSeen   = 0;
+	int32 FrontEpochSeen   = 0;
+	int32 BackEpochSeen    = 0;
 	
 	// Readback handles
 	TUniquePtr<FRHIGPUBufferReadback> TopReadback;
 	TUniquePtr<FRHIGPUBufferReadback> BottomReadback;
+	TUniquePtr<FRHIGPUBufferReadback> LeftReadback;
+	TUniquePtr<FRHIGPUBufferReadback> RightReadback;
+	TUniquePtr<FRHIGPUBufferReadback> FrontReadback;
+	TUniquePtr<FRHIGPUBufferReadback> BackReadback;
 
 	// Processing Gateways
 	void ProcessGPU();
@@ -237,6 +263,18 @@ protected:
 	// Render Target Bottom
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Light Awareness")
 	UTextureRenderTarget2D* LightAwarenessRenderTargetBottom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Light Awareness")
+	UTextureRenderTarget2D* LightAwarenessRenderTargetLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Light Awareness")
+	UTextureRenderTarget2D* LightAwarenessRenderTargetRight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Light Awareness")
+	UTextureRenderTarget2D* LightAwarenessRenderTargetFront;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Light Awareness")
+	UTextureRenderTarget2D* LightAwarenessRenderTargetBack;
 	
 	// Render Target Resource
 	FTextureRenderTarget2DResource* LightAwarenessRenderTargetResource;
@@ -254,6 +292,18 @@ protected:
 	
 	UPROPERTY(VisibleDefaultsOnly, Category="Light Awareness")
 	USceneCaptureComponent2D* sceneCaptureComponentBottom;
+
+	UPROPERTY(VisibleDefaultsOnly, Category="Light Awareness")
+	USceneCaptureComponent2D* sceneCaptureComponentLeft;
+
+	UPROPERTY(VisibleDefaultsOnly, Category="Light Awareness")
+	USceneCaptureComponent2D* sceneCaptureComponentRight;
+
+	UPROPERTY(VisibleDefaultsOnly, Category="Light Awareness")
+	USceneCaptureComponent2D* sceneCaptureComponentFront;
+
+	UPROPERTY(VisibleDefaultsOnly, Category="Light Awareness")
+	USceneCaptureComponent2D* sceneCaptureComponentBack;
 	
 	float RenderingCheckRate = 1.0f;
 

@@ -20,14 +20,14 @@ enum class ELightAwarenessSensitivity : uint8;
 struct FColor;
 
 // ********** Begin Delegate FOnLightAwarenessComponentUpdated *************************************
-#define FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_64_DELEGATE \
+#define FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_69_DELEGATE \
 LIGHTAWARENESS_API void FOnLightAwarenessComponentUpdated_DelegateWrapper(const FMulticastScriptDelegate& OnLightAwarenessComponentUpdated, float CurrentLightValue);
 
 
 // ********** End Delegate FOnLightAwarenessComponentUpdated ***************************************
 
 // ********** Begin Class ULightAwarenessComponent *************************************************
-#define FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_69_RPC_WRAPPERS_NO_PURE_DECLS \
+#define FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_74_RPC_WRAPPERS_NO_PURE_DECLS \
 	DECLARE_FUNCTION(execGetRenderingState); \
 	DECLARE_FUNCTION(execSetLightSensitivity); \
 	DECLARE_FUNCTION(execGetBufferPixels); \
@@ -38,7 +38,7 @@ LIGHTAWARENESS_API void FOnLightAwarenessComponentUpdated_DelegateWrapper(const 
 
 LIGHTAWARENESS_API UClass* Z_Construct_UClass_ULightAwarenessComponent_NoRegister();
 
-#define FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_69_INCLASS_NO_PURE_DECLS \
+#define FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_74_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesULightAwarenessComponent(); \
 	friend struct Z_Construct_UClass_ULightAwarenessComponent_Statics; \
@@ -49,7 +49,7 @@ public: \
 	DECLARE_SERIALIZER(ULightAwarenessComponent)
 
 
-#define FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_69_ENHANCED_CONSTRUCTORS \
+#define FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_74_ENHANCED_CONSTRUCTORS \
 	/** Deleted move- and copy-constructors, should never be used */ \
 	ULightAwarenessComponent(ULightAwarenessComponent&&) = delete; \
 	ULightAwarenessComponent(const ULightAwarenessComponent&) = delete; \
@@ -59,13 +59,13 @@ public: \
 	NO_API virtual ~ULightAwarenessComponent();
 
 
-#define FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_66_PROLOG
-#define FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_69_GENERATED_BODY \
+#define FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_71_PROLOG
+#define FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_74_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_69_RPC_WRAPPERS_NO_PURE_DECLS \
-	FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_69_INCLASS_NO_PURE_DECLS \
-	FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_69_ENHANCED_CONSTRUCTORS \
+	FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_74_RPC_WRAPPERS_NO_PURE_DECLS \
+	FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_74_INCLASS_NO_PURE_DECLS \
+	FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h_74_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -75,7 +75,7 @@ class ULightAwarenessComponent;
 // ********** End Class ULightAwarenessComponent ***************************************************
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID FID_LightAwarenessDemo_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h
+#define CURRENT_FILE_ID FID_Users_chloe_Documents_Projets_Unreal_LightAwareness_6axis_Plugins_LightAwareness_Source_LightAwareness_Public_LightAwarenessComponent_h
 
 // ********** Begin Enum ELightAwarenessSensitivity ************************************************
 #define FOREACH_ENUM_ELIGHTAWARENESSSENSITIVITY(op) \
@@ -91,8 +91,13 @@ template<> LIGHTAWARENESS_API UEnum* StaticEnum<ELightAwarenessSensitivity>();
 // ********** Begin Enum ELightAwarenessDetectionMethod ********************************************
 #define FOREACH_ENUM_ELIGHTAWARENESSDETECTIONMETHOD(op) \
 	op(ELightAwarenessDetectionMethod::Top) \
-	op(ELightAwarenessDetectionMethod::Both) \
-	op(ELightAwarenessDetectionMethod::Bottom) 
+	op(ELightAwarenessDetectionMethod::TopBottom) \
+	op(ELightAwarenessDetectionMethod::Bottom) \
+	op(ELightAwarenessDetectionMethod::Left) \
+	op(ELightAwarenessDetectionMethod::Right) \
+	op(ELightAwarenessDetectionMethod::Front) \
+	op(ELightAwarenessDetectionMethod::Back) \
+	op(ELightAwarenessDetectionMethod::All) 
 
 enum class ELightAwarenessDetectionMethod : uint8;
 template<> struct TIsUEnumClass<ELightAwarenessDetectionMethod> { enum { Value = true }; };

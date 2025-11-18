@@ -10,9 +10,7 @@ UCLASS(minimalapi)
 class ALightAwarenessDemoGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
-
-public:
-	ALightAwarenessDemoGameMode();
+	
 };
 
 
